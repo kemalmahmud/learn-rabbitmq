@@ -9,25 +9,25 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class MessagingConfig {
+public class MessagingConfigDirect {
 
     public static final String QUEUE = "kemal_test_queue";
     public static final String EXCHANGE = "kemal_test_exchange";
     public static final String ROUTING_KEY = "kemal_test_routingKey";
 
     @Bean
-    public Queue queue() {
+    public Queue directQueue() {
         return new Queue(QUEUE);
     }
 
     @Bean
-    public TopicExchange exchange(){
-        return new TopicExchange(EXCHANGE);
+    public DirectExchange directExchange(){
+        return new DirectExchange(EXCHANGE);
     }
 
     @Bean
-    public Binding binding(Queue queue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(queue).to(topicExchange).with(ROUTING_KEY);
+    public Binding binding(Queue directQueue, DirectExchange directExchange) {
+        return BindingBuilder.bind(directQueue).to(directExchange).with(ROUTING_KEY);
     }
 
     @Bean
