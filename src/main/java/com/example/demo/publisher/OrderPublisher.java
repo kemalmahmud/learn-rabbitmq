@@ -2,10 +2,15 @@ package com.example.demo.publisher;
 
 import com.example.demo.config.MessagingConfigDirect;
 import com.example.demo.config.MessagingConfigFanout;
+import com.example.demo.config.MessagingConfigHeader;
 import com.example.demo.config.MessagingConfigTopic;
 import com.example.demo.dto.Order;
 import com.example.demo.dto.OrderStatus;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +47,20 @@ public class OrderPublisher {
         orderStatus.setStatus("in topic 3, harusnya lolos");
         rabbitTemplate.convertAndSend(MessagingConfigTopic.EXCHANGE, MessagingConfigTopic.ROUTING_KEY4, orderStatus);
 
+        //header
+        orderStatus.setStatus("all, masuk ke semua queue");
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setHeader("from", "kemal");
+        messageProperties.setHeader("to", "you");
+        MessageConverter messageConverter = new SimpleMessageConverter();
+        Message message = messageConverter.toMessage(orderStatus.toString(), messageProperties);
+        rabbitTemplate.convertAndSend(MessagingConfigHeader.EXCHANGE, "", message);
+
+        orderStatus.setStatus("any, hanya masuk ke queue 2");
+        MessageProperties messageProperties2 = new MessageProperties();
+        messageProperties2.setHeader("from", "kemal");
+        Message message2 = messageConverter.toMessage(orderStatus.toString(), messageProperties2);
+        rabbitTemplate.convertAndSend(MessagingConfigHeader.EXCHANGE, "", message2);
 
         return "Success";
     }
